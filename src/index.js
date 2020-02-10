@@ -38,7 +38,6 @@ class Container extends React.Component {
       labels: newLabels
     }));
   };
-
   render() {
     console.log("state = ", this.state);
     return (

@@ -5,10 +5,10 @@ import "../App.css";
 import LabelForm from "./LabelForm.jsx";
 
 class LabelList extends React.Component {
-  constructor(props) {
+  constructor() {
     super();
     this.state = {
-      showEdit: undefined,
+      showEdit: false,
       showAddNew: true
     };
   }
@@ -16,20 +16,12 @@ class LabelList extends React.Component {
   handleEditForm = (label, index) => {
     const newLabels = R.update(index, label, this.props.labels);
     this.props.onChangeLabels(newLabels);
-    /*
-    this.setState(state => ({
-      ...state,
-      labels: R.update(index, label, this.props.labels)
-    }));
-    */
   };
 
-  // handleAddForm(item) {
-  //   this.setState(state => ({
-  //     ...state,
-  //     items: R.append(item, items)
-  //   }));
-  // }
+  handleAddForm(label) {
+    const newLabels = R.append(label, this.props.labels);
+    this.props.onChangeLabels(newLabels);
+  }
 
   render() {
     console.log("state  = ", this.state);
@@ -99,7 +91,7 @@ class LabelList extends React.Component {
                 this.setState({
                   ...this.state,
                   showEdit: undefined,
-                  showAddNew: undefined
+                  showAddNew: false
                 });
               }}
             >
@@ -108,7 +100,7 @@ class LabelList extends React.Component {
           </li>
         )}
 
-        {this.state.showAddNew === undefined && (
+        {this.state.showAddNew === false && (
           <li className="list-group-item d-flex justify-content-between align-items-center">
             <div>
               <button
@@ -125,7 +117,7 @@ class LabelList extends React.Component {
               >
                 <span aria-hidden="true">&times;</span>
               </button>
-              <LabelForm />
+              <LabelForm onSubmit={(e, label) => this.handleAddForm(label)} />
             </div>
           </li>
         )}

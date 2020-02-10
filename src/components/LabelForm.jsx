@@ -15,6 +15,7 @@ class LabelForm extends React.Component {
 
     return true;
   };
+
   handleSubmit = e => {
     e.preventDefault();
     if (this.isValid()) {
