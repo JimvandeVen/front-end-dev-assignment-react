@@ -14,17 +14,26 @@ class LabelList extends React.Component {
   }
 
   handleEditForm = (label, index) => {
+    this.setState({
+      ...this.state,
+      showEdit: false,
+      showAddNew: true
+    });
     const newLabels = R.update(index, label, this.props.labels);
     this.props.onChangeLabels(newLabels);
   };
 
   handleAddForm(label) {
+    this.setState({
+      ...this.state,
+      showEdit: false,
+      showAddNew: true
+    });
     const newLabels = R.append(label, this.props.labels);
     this.props.onChangeLabels(newLabels);
   }
 
   render() {
-    console.log("state  = ", this.state);
     const labels = this.props.labels.map((label, index) => (
       <li
         className="list-group-item d-flex justify-content-between align-items-center"

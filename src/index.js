@@ -39,7 +39,6 @@ class Container extends React.Component {
     }));
   };
   render() {
-    console.log("state = ", this.state);
     return (
       <LabelList
         labels={this.state.labels}

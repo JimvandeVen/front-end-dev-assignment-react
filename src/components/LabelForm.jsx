@@ -3,22 +3,48 @@ import PropTypes from "prop-types";
 import "../App.css";
 
 class LabelForm extends React.Component {
-  constructor(props) {
+  constructor() {
     super();
     this.state = {
-      label: undefined
+      label: undefined,
+      validName: false,
+      validColor: false
     };
   }
 
-  isValid = () => {
-    // TODO: Implement validation
+  nameValidator = name => {
+    console.log("name =", name, "length=", name.length);
+    console.log(0 < name.length);
 
-    return true;
+    if (0 < name.length && 15 > name.length) {
+      this.setState(s => ({
+        ...s,
+        validName: true
+      }));
+    } else {
+      this.setState(s => ({
+        ...s,
+        validName: false
+      }));
+    }
   };
 
+  colorValidator = color => {
+    if (color.match(/^#([0-9a-f]){3,6}$/i)) {
+      this.setState(s => ({
+        ...s,
+        validColor: true
+      }));
+    } else {
+      this.setState(s => ({
+        ...s,
+        validColor: false
+      }));
+    }
+  };
   handleSubmit = e => {
     e.preventDefault();
-    if (this.isValid()) {
+    if (this.state.validName === true && this.state.validColor === true) {
       const merged = {
         ...this.props.label,
         ...this.state.label
@@ -29,7 +55,7 @@ class LabelForm extends React.Component {
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
+      <form className="needs-validation" onSubmit={this.handleSubmit}>
         <div className="form-group row">
           <div className="col-sm-12 mt-5">
             <label className="sr-only">Color</label>
@@ -50,7 +76,8 @@ class LabelForm extends React.Component {
               <input
                 type="text"
                 name="color"
-                className="form-control"
+                className={`form-control ${this.state.validColor === false &&
+                  "is-invalid"}`}
                 placeholder="Color"
                 value={
                   this.state.label?.color !== undefined
@@ -58,16 +85,18 @@ class LabelForm extends React.Component {
                     : this.props.label.color
                 }
                 onChange={e => {
-                  const value = e.target.value;
+                  const color = e.target.value;
+                  this.colorValidator(color);
                   this.setState(s => ({
                     ...s,
                     label: {
                       ...s.label,
-                      color: value
+                      color: color
                     }
                   }));
                 }}
               />
+              <div className="valid-tooltip">Looks good!</div>
             </div>
           </div>
           <div className="col-sm-12 my-3">
@@ -76,7 +105,8 @@ class LabelForm extends React.Component {
               <input
                 type="text"
                 name="name"
-                className="form-control"
+                className={`form-control ${this.state.validName === false &&
+                  "is-invalid"}`}
                 placeholder="Name"
                 value={
                   this.state.label?.name !== undefined
@@ -84,12 +114,13 @@ class LabelForm extends React.Component {
                     : this.props.label.name
                 }
                 onChange={e => {
-                  const value = e.target.value;
+                  const name = e.target.value;
+                  this.nameValidator(name);
                   this.setState(s => ({
                     ...s,
                     label: {
                       ...s.label,
-                      name: value
+                      name: name
                     }
                   }));
                 }}
