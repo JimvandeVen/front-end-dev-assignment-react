@@ -2,12 +2,14 @@ import React from "react";
 import PropTypes from "prop-types";
 import "../App.css";
 import { TwitterPicker } from "react-color";
+import { Manager, Reference, Popper } from "react-popper";
 
 class LabelForm extends React.Component {
   constructor() {
     super();
     this.state = {
       label: undefined,
+      showColorPicker: false,
       formState: {}
     };
   }
@@ -91,8 +93,31 @@ class LabelForm extends React.Component {
         <div className="form-group row">
           <div className="col-sm-12 mt-5">
             <label className="sr-only">Color</label>
-
             <div className="input-group">
+              <Manager>
+                <Reference>
+                  {({ ref }) => (
+                    <button type="button" ref={ref}>
+                      Reference element
+                    </button>
+                  )}
+                </Reference>
+                <Popper placement="top">
+                  {({ ref, style, placement, arrowProps }) => (
+                    <div ref={ref} style={style} data-placement={placement}>
+                      {this.state.showColorPicker && (
+                        <TwitterPicker
+                          color={
+                            this.state.label?.color || this.props.label.color
+                          }
+                          onChange={this.handleColorChange}
+                        />
+                      )}
+                      <div ref={arrowProps.ref} style={arrowProps.style} />
+                    </div>
+                  )}
+                </Popper>
+              </Manager>
               <div className="input-group-prepend">
                 <div className="input-group-text">
                   <span
@@ -106,6 +131,7 @@ class LabelForm extends React.Component {
                   </span>
                 </div>
               </div>
+
               <input
                 type="text"
                 name="color"
@@ -119,6 +145,12 @@ class LabelForm extends React.Component {
                     ? this.state.label.color
                     : this.props.label.color
                 }
+                onFocus={() => {
+                  this.setState(s => ({
+                    ...s,
+                    showColorPicker: true
+                  }));
+                }}
                 onChange={e => {
                   const color = e.target.value;
                   this.validateColor(color);
@@ -130,11 +162,6 @@ class LabelForm extends React.Component {
                     }
                   }));
                 }}
-              />
-              <TwitterPicker
-                style={{ width: "10px" }}
-                color={this.state.label?.color || this.props.label.color}
-                onChange={this.handleColorChange}
               />
               <div className="invalid-feedback">
                 {this.state.formState.color?.error}
