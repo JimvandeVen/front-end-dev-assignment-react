@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import "../App.css";
+import { TwitterPicker } from "react-color";
 
 class LabelForm extends React.Component {
   constructor() {
@@ -10,6 +11,18 @@ class LabelForm extends React.Component {
       formState: {}
     };
   }
+
+  handleColorChange = (color, event) => {
+    console.log("color=", color.hex);
+    this.validateColor(color.hex);
+    this.setState(s => ({
+      ...s,
+      label: {
+        ...s.label,
+        color: color.hex
+      }
+    }));
+  };
 
   validateName = name => {
     if (!(0 < name.length)) {
@@ -60,6 +73,7 @@ class LabelForm extends React.Component {
       }));
     }
   };
+
   handleSubmit = e => {
     e.preventDefault();
     if (this.state.isNameValid === true && this.state.isColorValid === true) {
@@ -77,6 +91,7 @@ class LabelForm extends React.Component {
         <div className="form-group row">
           <div className="col-sm-12 mt-5">
             <label className="sr-only">Color</label>
+
             <div className="input-group">
               <div className="input-group-prepend">
                 <div className="input-group-text">
@@ -115,6 +130,11 @@ class LabelForm extends React.Component {
                     }
                   }));
                 }}
+              />
+              <TwitterPicker
+                style={{ width: "10px" }}
+                color={this.state.label?.color || this.props.label.color}
+                onChange={this.handleColorChange}
               />
               <div className="invalid-feedback">
                 {this.state.formState.color?.error}
