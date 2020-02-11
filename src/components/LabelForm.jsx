@@ -7,44 +7,62 @@ class LabelForm extends React.Component {
     super();
     this.state = {
       label: undefined,
-      validName: false,
-      validColor: false
+      formState: {}
     };
   }
 
-  nameValidator = name => {
-    console.log("name =", name, "length=", name.length);
-    console.log(0 < name.length);
-
-    if (0 < name.length && 15 > name.length) {
+  validateName = name => {
+    if (!(0 < name.length)) {
       this.setState(s => ({
         ...s,
-        validName: true
+        formState: {
+          ...s.formState,
+          name: {
+            isValid: false,
+            error: "Name should not be empty."
+          }
+        }
       }));
     } else {
       this.setState(s => ({
         ...s,
-        validName: false
+        formState: {
+          ...s.formState,
+          name: {
+            isValid: true
+          }
+        }
       }));
     }
   };
 
-  colorValidator = color => {
-    if (color.match(/^#([0-9a-f]){3,6}$/i)) {
+  validateColor = color => {
+    if (!color.match(/^#([0-9a-f]){3,6}$/i)) {
       this.setState(s => ({
         ...s,
-        validColor: true
+        formState: {
+          ...s.formState,
+          color: {
+            isValid: false,
+            error: "Color should be a valid hexcode."
+          }
+        }
       }));
     } else {
       this.setState(s => ({
         ...s,
-        validColor: false
+        formState: {
+          ...s.formState,
+          color: {
+            isValid: true
+          }
+        }
       }));
     }
   };
   handleSubmit = e => {
     e.preventDefault();
-    if (this.state.validName === true && this.state.validColor === true) {
+    if (this.state.isNameValid === true && this.state.isColorValid === true) {
       const merged = {
         ...this.props.label,
         ...this.state.label
@@ -76,8 +94,10 @@ class LabelForm extends React.Component {
               <input
                 type="text"
                 name="color"
-                className={`form-control ${this.state.validColor === false &&
-                  "is-invalid"}`}
+                className={`form-control ${this.state.formState.color &&
+                  (this.state.formState.color.isValid
+                    ? "is-valid"
+                    : "is-invalid")}`}
                 placeholder="Color"
                 value={
                   this.state.label?.color !== undefined
@@ -86,7 +106,7 @@ class LabelForm extends React.Component {
                 }
                 onChange={e => {
                   const color = e.target.value;
-                  this.colorValidator(color);
+                  this.validateColor(color);
                   this.setState(s => ({
                     ...s,
                     label: {
@@ -96,7 +116,9 @@ class LabelForm extends React.Component {
                   }));
                 }}
               />
-              <div className="valid-tooltip">Looks good!</div>
+              <div className="invalid-feedback">
+                {this.state.formState.color?.error}
+              </div>
             </div>
           </div>
           <div className="col-sm-12 my-3">
@@ -105,8 +127,10 @@ class LabelForm extends React.Component {
               <input
                 type="text"
                 name="name"
-                className={`form-control ${this.state.validName === false &&
-                  "is-invalid"}`}
+                className={`form-control ${this.state.formState.name &&
+                  (this.state.formState.name.isValid
+                    ? "is-valid"
+                    : "is-invalid")}`}
                 placeholder="Name"
                 value={
                   this.state.label?.name !== undefined
@@ -115,7 +139,7 @@ class LabelForm extends React.Component {
                 }
                 onChange={e => {
                   const name = e.target.value;
-                  this.nameValidator(name);
+                  this.validateName(name);
                   this.setState(s => ({
                     ...s,
                     label: {
@@ -125,6 +149,9 @@ class LabelForm extends React.Component {
                   }));
                 }}
               />
+              <div className="invalid-feedback">
+                {this.state.formState.name?.error}
+              </div>
             </div>
           </div>
           <div className="col-auto">
