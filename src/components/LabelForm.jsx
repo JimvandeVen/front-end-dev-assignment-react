@@ -77,6 +77,8 @@ class LabelForm extends React.Component {
   };
 
   handleSubmit = e => {
+    console.log("halllooooo");
+
     e.preventDefault();
     if (this.state.isNameValid === true && this.state.isColorValid === true) {
       const merged = {
@@ -97,9 +99,19 @@ class LabelForm extends React.Component {
               <Manager>
                 <Reference>
                   {({ ref }) => (
-                    <button type="button" ref={ref}>
-                      Reference element
-                    </button>
+                    <div className="input-group-prepend" ref={ref}>
+                      <div className="input-group-text">
+                        <span
+                          className="badge badge-secondary"
+                          style={{
+                            backgroundColor:
+                              this.state.label?.color || this.props.label.color
+                          }}
+                        >
+                          Color
+                        </span>
+                      </div>
+                    </div>
                   )}
                 </Reference>
                 <Popper placement="top">
@@ -118,19 +130,6 @@ class LabelForm extends React.Component {
                   )}
                 </Popper>
               </Manager>
-              <div className="input-group-prepend">
-                <div className="input-group-text">
-                  <span
-                    className="badge badge-secondary"
-                    style={{
-                      backgroundColor:
-                        this.state.label?.color || this.props.label.color
-                    }}
-                  >
-                    Color
-                  </span>
-                </div>
-              </div>
 
               <input
                 type="text"
