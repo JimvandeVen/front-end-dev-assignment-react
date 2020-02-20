@@ -14,6 +14,8 @@ class LabelList extends React.Component {
   }
 
   handleEditForm = (label, index) => {
+    console.log("label =", label);
+
     this.setState({
       ...this.state,
       showEdit: false,

@@ -1,8 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import "../App.css";
-import { TwitterPicker } from "react-color";
-import { Manager, Reference, Popper } from "react-popper";
+import { Manager, Reference } from "react-popper";
 
 class LabelForm extends React.Component {
   constructor() {
@@ -77,15 +76,17 @@ class LabelForm extends React.Component {
   };
 
   handleSubmit = e => {
-    console.log("halllooooo");
+    console.log("halllooooo", this.state);
 
     e.preventDefault();
-    if (this.state.isNameValid === true && this.state.isColorValid === true) {
+    if (this.state.formState) {
       const merged = {
         ...this.props.label,
         ...this.state.label
       };
       this.props.onSubmit(e, merged);
+    } else {
+      console.log("error");
     }
   };
 
@@ -114,21 +115,6 @@ class LabelForm extends React.Component {
                     </div>
                   )}
                 </Reference>
-                <Popper placement="top">
-                  {({ ref, style, placement, arrowProps }) => (
-                    <div ref={ref} style={style} data-placement={placement}>
-                      {this.state.showColorPicker && (
-                        <TwitterPicker
-                          color={
-                            this.state.label?.color || this.props.label.color
-                          }
-                          onChange={this.handleColorChange}
-                        />
-                      )}
-                      <div ref={arrowProps.ref} style={arrowProps.style} />
-                    </div>
-                  )}
-                </Popper>
               </Manager>
 
               <input
