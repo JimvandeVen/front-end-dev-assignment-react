@@ -76,7 +76,11 @@ class LabelForm extends React.Component {
   };
 
   handleSubmit = e => {
-    console.log("halllooooo", this.state);
+    console.log("state = ", this.state);
+    /* state has -> formState.name.isValid and formState.color.isValid or one or none
+     if (formState.name.isValid === true and/or formState.name.isValid === true){
+       .....
+     } */
 
     e.preventDefault();
     if (this.state.formState) {
