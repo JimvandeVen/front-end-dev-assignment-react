@@ -9,21 +9,24 @@ class LabelForm extends React.Component {
     this.state = {
       label: undefined,
       showColorPicker: false,
-      formState: {}
+      formState: {
+        nameIsValid: true,
+        colorIsValid: true
+      }
     };
   }
 
-  handleColorChange = (color, event) => {
-    console.log("color=", color.hex);
-    this.validateColor(color.hex);
-    this.setState(s => ({
-      ...s,
-      label: {
-        ...s.label,
-        color: color.hex
-      }
-    }));
-  };
+  // handleColorChange = (color, event) => {
+  //   console.log("color=", color.hex);
+  //   this.validateColor(color.hex);
+  //   this.setState(s => ({
+  //     ...s,
+  //     label: {
+  //       ...s.label,
+  //       color: color.hex
+  //     }
+  //   }));
+  // };
 
   validateName = name => {
     if (!(0 < name.length)) {
@@ -31,9 +34,9 @@ class LabelForm extends React.Component {
         ...s,
         formState: {
           ...s.formState,
-          name: {
-            isValid: false,
-            error: "Name should not be empty."
+          errors: {
+            ...s.formState.errors,
+            name: "Name should not be empty!"
           }
         }
       }));
@@ -42,8 +45,8 @@ class LabelForm extends React.Component {
         ...s,
         formState: {
           ...s.formState,
-          name: {
-            isValid: true
+          errors: {
+            ...s.formState.errors
           }
         }
       }));
@@ -56,10 +59,8 @@ class LabelForm extends React.Component {
         ...s,
         formState: {
           ...s.formState,
-          color: {
-            isValid: false,
-            error: "Color should be a valid hexcode."
-          }
+          colorIsValid: false,
+          colorError: "Color should be a valid hexcode."
         }
       }));
     } else {
@@ -67,9 +68,7 @@ class LabelForm extends React.Component {
         ...s,
         formState: {
           ...s.formState,
-          color: {
-            isValid: true
-          }
+          colorIsValid: true
         }
       }));
     }
@@ -124,10 +123,11 @@ class LabelForm extends React.Component {
               <input
                 type="text"
                 name="color"
-                className={`form-control ${this.state.formState.color &&
-                  (this.state.formState.color.isValid
+                className={`form-control ${
+                  this.state.formState.colorIsValid === true
                     ? "is-valid"
-                    : "is-invalid")}`}
+                    : "is-invalid"
+                }`}
                 placeholder="Color"
                 value={
                   this.state.label?.color !== undefined
@@ -153,7 +153,7 @@ class LabelForm extends React.Component {
                 }}
               />
               <div className="invalid-feedback">
-                {this.state.formState.color?.error}
+                {this.state.formState?.colorError}
               </div>
             </div>
           </div>
@@ -163,10 +163,11 @@ class LabelForm extends React.Component {
               <input
                 type="text"
                 name="name"
-                className={`form-control ${this.state.formState.name &&
-                  (this.state.formState.name.isValid
+                className={`form-control ${
+                  this.state.formState.nameIsValid === true
                     ? "is-valid"
-                    : "is-invalid")}`}
+                    : "is-invalid"
+                }`}
                 placeholder="Name"
                 value={
                   this.state.label?.name !== undefined
@@ -191,7 +192,16 @@ class LabelForm extends React.Component {
             </div>
           </div>
           <div className="col-auto">
-            <button type="submit" className="btn btn-primary mb-2">
+            <button
+              type="submit"
+              className="btn btn-primary mb-2"
+              disabled={
+                !(
+                  this.state.formState.nameIsValid === true &&
+                  this.state.formState.colorIsValid === true
+                )
+              }
+            >
               Submit
             </button>
           </div>
