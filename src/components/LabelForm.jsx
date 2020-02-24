@@ -16,18 +16,6 @@ class LabelForm extends React.Component {
     };
   }
 
-  // handleColorChange = (color, event) => {
-  //   console.log("color=", color.hex);
-  //   this.validateColor(color.hex);
-  //   this.setState(s => ({
-  //     ...s,
-  //     label: {
-  //       ...s.label,
-  //       color: color.hex
-  //     }
-  //   }));
-  // };
-
   validateName = name => {
     if (!(0 < name.length)) {
       this.setState(s => ({

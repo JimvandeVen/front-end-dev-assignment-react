@@ -2,6 +2,10 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import LabelList from "./components/LabelList";
+import { createStore } from "redux";
+import labelList from "./reducers/reducer.js";
+
+const store = createStore(labelList);
 
 const initialState = {
   labels: [
