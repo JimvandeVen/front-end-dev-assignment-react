@@ -1,54 +1,66 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import "./index.css";
-import LabelList from "./components/LabelList";
+import { render } from "react-dom";
+import { Provider } from "react-redux";
 import { createStore } from "redux";
-import labelList from "./reducers/reducer.js";
+import ConnectedLabelList from "./containers/ConnectedLabelList";
+import labelFormReducer from "./reducers/reducer.js";
+import "./index.css";
 
-const store = createStore(labelList);
+const labels = Object.freeze([
+  {
+    name: "Foo",
+    color: "#fcba03"
+  },
+  {
+    name: "Bar",
+    color: "#282db8"
+  },
+  {
+    name: "Baz",
+    color: "#9322bf"
+  },
+  {
+    name: "Qux",
+    color: "#218f1b"
+  }
+]);
 
-const initialState = {
-  labels: [
-    {
-      name: "Foo",
-      color: "#fcba03"
-    },
-    {
-      name: "Bar",
-      color: "#282db8"
-    },
-    {
-      name: "Baz",
-      color: "#9322bf"
-    },
-    {
-      name: "Qux",
-      color: "#218f1b"
+const store = createStore(
+  labelFormReducer,
+  {
+    labelForm: {
+      labels
     }
-  ]
-};
+  },
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+);
 
-class Container extends React.Component {
-  constructor() {
-    super();
+render(
+  <Provider store={store}>
+    <ConnectedLabelList />
+  </Provider>,
+  document.getElementById("root")
+);
 
-    this.state = initialState;
-  }
+// class Container extends React.Component {
+//   constructor() {
+//     super();
 
-  handleChangeLabels = newLabels => {
-    this.setState(state => ({
-      ...state,
-      labels: newLabels
-    }));
-  };
-  render() {
-    return (
-      <LabelList
-        labels={this.state.labels}
-        onChangeLabels={this.handleChangeLabels}
-      />
-    );
-  }
-}
+//     this.state = initialState;
+//   }
 
-ReactDOM.render(<Container />, document.getElementById("root"));
+//   handleChangeLabels = newLabels => {
+//     this.setState(state => ({
+//       ...state,
+//       labels: newLabels
+//     }));
+//   };
+//   render() {
+//     return (
+//       <LabelList
+//         labels={this.state.labels}
+//         onChangeLabels={this.handleChangeLabels}
+//       />
+//     );
+//   }
+// }

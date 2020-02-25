@@ -22,10 +22,8 @@ class LabelForm extends React.Component {
         ...s,
         formState: {
           ...s.formState,
-          errors: {
-            ...s.formState.errors,
-            name: "Name should not be empty!"
-          }
+          nameIsValid: false,
+          nameError: "Name should not be empty!"
         }
       }));
     } else {
@@ -33,9 +31,7 @@ class LabelForm extends React.Component {
         ...s,
         formState: {
           ...s.formState,
-          errors: {
-            ...s.formState.errors
-          }
+          nameIsValid: true
         }
       }));
     }
@@ -63,19 +59,13 @@ class LabelForm extends React.Component {
   };
 
   handleSubmit = e => {
-    console.log("state = ", this.state);
-    /* state has -> formState.name.isValid and formState.color.isValid or one or none
-     if (formState.name.isValid === true and/or formState.name.isValid === true){
-       .....
-     } */
-
     e.preventDefault();
-    if (this.state.formState) {
+    if (this.state.formState.nameIsValid && this.state.formState.colorIsValid) {
       const merged = {
         ...this.props.label,
         ...this.state.label
       };
-      this.props.onSubmit(e, merged);
+      this.props.onSubmit(merged);
     } else {
       console.log("error");
     }
@@ -112,9 +102,7 @@ class LabelForm extends React.Component {
                 type="text"
                 name="color"
                 className={`form-control ${
-                  this.state.formState.colorIsValid === true
-                    ? "is-valid"
-                    : "is-invalid"
+                  this.state.formState.colorIsValid ? "is-valid" : "is-invalid"
                 }`}
                 placeholder="Color"
                 value={
@@ -152,9 +140,7 @@ class LabelForm extends React.Component {
                 type="text"
                 name="name"
                 className={`form-control ${
-                  this.state.formState.nameIsValid === true
-                    ? "is-valid"
-                    : "is-invalid"
+                  this.state.formState.nameIsValid ? "is-valid" : "is-invalid"
                 }`}
                 placeholder="Name"
                 value={
@@ -175,7 +161,7 @@ class LabelForm extends React.Component {
                 }}
               />
               <div className="invalid-feedback">
-                {this.state.formState.name?.error}
+                {this.state.formState.nameError}
               </div>
             </div>
           </div>
@@ -185,8 +171,8 @@ class LabelForm extends React.Component {
               className="btn btn-primary mb-2"
               disabled={
                 !(
-                  this.state.formState.nameIsValid === true &&
-                  this.state.formState.colorIsValid === true
+                  this.state.formState.nameIsValid &&
+                  this.state.formState.colorIsValid
                 )
               }
             >
