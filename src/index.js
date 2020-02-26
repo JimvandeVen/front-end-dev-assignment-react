@@ -41,26 +41,3 @@ render(
   </Provider>,
   document.getElementById("root")
 );
-
-// class Container extends React.Component {
-//   constructor() {
-//     super();
-
-//     this.state = initialState;
-//   }
-
-//   handleChangeLabels = newLabels => {
-//     this.setState(state => ({
-//       ...state,
-//       labels: newLabels
-//     }));
-//   };
-//   render() {
-//     return (
-//       <LabelList
-//         labels={this.state.labels}
-//         onChangeLabels={this.handleChangeLabels}
-//       />
-//     );
-//   }
-// }
