@@ -1,189 +1,158 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "../App.css";
 import { Manager, Reference } from "react-popper";
 
-class LabelForm extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      label: undefined,
-      showColorPicker: false,
-      formState: {
-        nameIsValid: true,
-        colorIsValid: true
-      }
-    };
-  }
+function LabelForm(props) {
+  console.log(props.label);
+  const [label, setLabel] = useState(props.label);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [formState, setFormState] = useState({
+    nameIsValid: true,
+    colorIsValid: true
+  });
 
-  validateName = name => {
-    if (!(0 < name.length)) {
-      this.setState(s => ({
-        ...s,
-        formState: {
-          ...s.formState,
-          nameIsValid: false,
-          nameError: "Name should not be empty!"
-        }
-      }));
-    } else {
-      this.setState(s => ({
-        ...s,
-        formState: {
-          ...s.formState,
-          nameIsValid: true
-        }
-      }));
-    }
-  };
-
-  validateColor = color => {
-    if (!color.match(/^#([0-9a-f]){3,6}$/i)) {
-      this.setState(s => ({
-        ...s,
-        formState: {
-          ...s.formState,
-          colorIsValid: false,
-          colorError: "Color should be a valid hexcode."
-        }
-      }));
-    } else {
-      this.setState(s => ({
-        ...s,
-        formState: {
-          ...s.formState,
-          colorIsValid: true
-        }
-      }));
-    }
-  };
-
-  handleSubmit = e => {
-    e.preventDefault();
-    if (this.state.formState.nameIsValid && this.state.formState.colorIsValid) {
-      const merged = {
-        ...this.props.label,
-        ...this.state.label
-      };
-      this.props.onSubmit(merged);
-    } else {
-      console.log("error");
-    }
-  };
-
-  render() {
-    return (
-      <form className="needs-validation" onSubmit={this.handleSubmit}>
-        <div className="form-group row">
-          <div className="col-sm-12 mt-5">
-            <label className="sr-only">Color</label>
-            <div className="input-group">
-              <Manager>
-                <Reference>
-                  {({ ref }) => (
-                    <div className="input-group-prepend" ref={ref}>
-                      <div className="input-group-text">
-                        <span
-                          className="badge badge-secondary"
-                          style={{
-                            backgroundColor:
-                              this.state.label?.color || this.props.label.color
-                          }}
-                        >
-                          Color
-                        </span>
-                      </div>
+  return (
+    <form className="needs-validation" /*onSubmit={handleSubmit}*/>
+      <div className="form-group row">
+        <div className="col-sm-12 mt-5">
+          <label className="sr-only">Color</label>
+          <div className="input-group">
+            <Manager>
+              <Reference>
+                {({ ref }) => (
+                  <div className="input-group-prepend" ref={ref}>
+                    <div className="input-group-text">
+                      <span
+                        className="badge badge-secondary"
+                        style={{ backgroundColor: label.color }}
+                      >
+                        Color
+                      </span>
                     </div>
-                  )}
-                </Reference>
-              </Manager>
+                  </div>
+                )}
+              </Reference>
+            </Manager>
 
-              <input
-                type="text"
-                name="color"
-                className={`form-control ${
-                  this.state.formState.colorIsValid ? "is-valid" : "is-invalid"
-                }`}
-                placeholder="Color"
-                value={
-                  this.state.label?.color !== undefined
-                    ? this.state.label.color
-                    : this.props.label.color
-                }
-                onFocus={() => {
-                  this.setState(s => ({
-                    ...s,
-                    showColorPicker: true
-                  }));
-                }}
-                onChange={e => {
-                  const color = e.target.value;
-                  this.validateColor(color);
-                  this.setState(s => ({
-                    ...s,
-                    label: {
-                      ...s.label,
-                      color: color
-                    }
-                  }));
-                }}
-              />
-              <div className="invalid-feedback">
-                {this.state.formState?.colorError}
-              </div>
-            </div>
-          </div>
-          <div className="col-sm-12 my-3">
-            <label className="sr-only"></label>
-            <div className="input-group">
-              <input
-                type="text"
-                name="name"
-                className={`form-control ${
-                  this.state.formState.nameIsValid ? "is-valid" : "is-invalid"
-                }`}
-                placeholder="Name"
-                value={
-                  this.state.label?.name !== undefined
-                    ? this.state.label.name
-                    : this.props.label.name
-                }
-                onChange={e => {
-                  const name = e.target.value;
-                  this.validateName(name);
-                  this.setState(s => ({
-                    ...s,
-                    label: {
-                      ...s.label,
-                      name: name
-                    }
-                  }));
-                }}
-              />
-              <div className="invalid-feedback">
-                {this.state.formState.nameError}
-              </div>
-            </div>
-          </div>
-          <div className="col-auto">
-            <button
-              type="submit"
-              className="btn btn-primary mb-2"
-              disabled={
-                !(
-                  this.state.formState.nameIsValid &&
-                  this.state.formState.colorIsValid
-                )
-              }
-            >
-              Submit
-            </button>
+            <input
+              type="text"
+              name="color"
+              className={`form-control ${
+                formState.colorIsValid ? "is-valid" : "is-invalid"
+              }`}
+              placeholder="Color"
+              value={label.color}
+              onFocus={() => {
+                setShowColorPicker(true);
+              }}
+              onChange={e => {
+                const color = e.target.value;
+                this.validateColor(color);
+                setLabel({
+                  label: {
+                    ...label,
+                    color: color
+                  }
+                });
+              }}
+            />
+            <div className="invalid-feedback">{formState?.colorError}</div>
           </div>
         </div>
-      </form>
-    );
-  }
+        <div className="col-sm-12 my-3">
+          <label className="sr-only"></label>
+          <div className="input-group">
+            <input
+              type="text"
+              name="name"
+              className={`form-control ${
+                formState.nameIsValid ? "is-valid" : "is-invalid"
+              }`}
+              placeholder="Name"
+              value={label.name}
+              onChange={e => {
+                const name = e.target.value;
+                this.validateName(name);
+                setLabel({
+                  label: {
+                    ...label,
+                    name: name
+                  }
+                });
+              }}
+            />
+            <div className="invalid-feedback">{formState.nameError}</div>
+          </div>
+        </div>
+        <div className="col-auto">
+          <button
+            type="submit"
+            className="btn btn-primary mb-2"
+            disabled={!(formState.nameIsValid && formState.colorIsValid)}
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </form>
+  );
 }
+
+// handleSubmit = e => {
+//   e.preventDefault();
+//   if (formState.nameIsValid && formState.colorIsValid) {
+//     const merged = {
+//       ...label,
+//       ...this.state.label
+//     };
+//     this.props.onSubmit(merged);
+//   } else {
+//     console.log("error");
+//   }
+// };
+
+//   validateName = name => {
+//     if (!(0 < name.length)) {
+//       this.setState(s => ({
+//         ...s,
+//         formState: {
+//           ...s.formState,
+//           nameIsValid: false,
+//           nameError: "Name should not be empty!"
+//         }
+//       }));
+//     } else {
+//       this.setState(s => ({
+//         ...s,
+//         formState: {
+//           ...s.formState,
+//           nameIsValid: true
+//         }
+//       }));
+//     }
+//   };
+
+//   validateColor = color => {
+//     if (!color.match(/^#([0-9a-f]){3,6}$/i)) {
+//       this.setState(s => ({
+//         ...s,
+//         formState: {
+//           ...s.formState,
+//           colorIsValid: false,
+//           colorError: "Color should be a valid hexcode."
+//         }
+//       }));
+//     } else {
+//       this.setState(s => ({
+//         ...s,
+//         formState: {
+//           ...s.formState,
+//           colorIsValid: true
+//         }
+//       }));
+//     }
+//   };
 
 LabelForm.propTypes = {
   label: PropTypes.shape({
