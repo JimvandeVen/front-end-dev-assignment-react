@@ -1,19 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import "../App.css";
 import { Manager, Reference } from "react-popper";
 
 function LabelForm(props) {
-  console.log(props.label);
   const [label, setLabel] = useState(props.label);
-  const [showColorPicker, setShowColorPicker] = useState(false);
   const [formState, setFormState] = useState({
     nameIsValid: true,
     colorIsValid: true
   });
 
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (formState.nameIsValid && formState.colorIsValid) {
+      const merged = {
+        ...label
+      };
+      props.onSubmit(merged);
+    } else {
+      console.log("error");
+    }
+  };
+
+  function validateColor(color) {
+    if (!color.match(/^#([0-9a-f]){3,6}$/i)) {
+      setFormState({
+        ...formState,
+        colorIsValid: false,
+        colorError: "Color should be a valid hexcode."
+      });
+    } else {
+      setFormState({
+        ...formState,
+        colorIsValid: true
+      });
+    }
+  }
+
+  function validateName(name) {
+    if (!(0 < name.length)) {
+      setFormState({
+        ...formState,
+        nameIsValid: false,
+        nameError: "Name should not be empty!"
+      });
+    } else {
+      setFormState({
+        ...formState,
+        nameIsValid: true
+      });
+    }
+  }
+
   return (
-    <form className="needs-validation" /*onSubmit={handleSubmit}*/>
+    <form className="needs-validation" onSubmit={handleSubmit}>
       <div className="form-group row">
         <div className="col-sm-12 mt-5">
           <label className="sr-only">Color</label>
@@ -42,18 +82,13 @@ function LabelForm(props) {
                 formState.colorIsValid ? "is-valid" : "is-invalid"
               }`}
               placeholder="Color"
-              value={label.color}
-              onFocus={() => {
-                setShowColorPicker(true);
-              }}
+              value={label.color || ""}
               onChange={e => {
                 const color = e.target.value;
-                this.validateColor(color);
+                validateColor(color);
                 setLabel({
-                  label: {
-                    ...label,
-                    color: color
-                  }
+                  ...label,
+                  color: color
                 });
               }}
             />
@@ -70,15 +105,13 @@ function LabelForm(props) {
                 formState.nameIsValid ? "is-valid" : "is-invalid"
               }`}
               placeholder="Name"
-              value={label.name}
+              value={label.name || ""}
               onChange={e => {
                 const name = e.target.value;
-                this.validateName(name);
+                validateName(name);
                 setLabel({
-                  label: {
-                    ...label,
-                    name: name
-                  }
+                  ...label,
+                  name: name
                 });
               }}
             />
@@ -98,61 +131,6 @@ function LabelForm(props) {
     </form>
   );
 }
-
-// handleSubmit = e => {
-//   e.preventDefault();
-//   if (formState.nameIsValid && formState.colorIsValid) {
-//     const merged = {
-//       ...label,
-//       ...this.state.label
-//     };
-//     this.props.onSubmit(merged);
-//   } else {
-//     console.log("error");
-//   }
-// };
-
-//   validateName = name => {
-//     if (!(0 < name.length)) {
-//       this.setState(s => ({
-//         ...s,
-//         formState: {
-//           ...s.formState,
-//           nameIsValid: false,
-//           nameError: "Name should not be empty!"
-//         }
-//       }));
-//     } else {
-//       this.setState(s => ({
-//         ...s,
-//         formState: {
-//           ...s.formState,
-//           nameIsValid: true
-//         }
-//       }));
-//     }
-//   };
-
-//   validateColor = color => {
-//     if (!color.match(/^#([0-9a-f]){3,6}$/i)) {
-//       this.setState(s => ({
-//         ...s,
-//         formState: {
-//           ...s.formState,
-//           colorIsValid: false,
-//           colorError: "Color should be a valid hexcode."
-//         }
-//       }));
-//     } else {
-//       this.setState(s => ({
-//         ...s,
-//         formState: {
-//           ...s.formState,
-//           colorIsValid: true
-//         }
-//       }));
-//     }
-//   };
 
 LabelForm.propTypes = {
   label: PropTypes.shape({
