@@ -1,28 +1,27 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import "../App.css";
-import { Manager, Reference } from "react-popper";
+import { Manager, Reference, Popper } from "react-popper";
+import { TwitterPicker } from "react-color";
 
 function LabelForm(props) {
   const [label, setLabel] = useState(props.label);
   const [formState, setFormState] = useState({
     nameIsValid: true,
-    colorIsValid: true
+    colorIsValid: true,
+    popoutVisible: false
   });
 
   const handleSubmit = e => {
     e.preventDefault();
     if (formState.nameIsValid && formState.colorIsValid) {
-      const merged = {
-        ...label
-      };
-      props.onSubmit(merged);
+      props.onSubmit(label);
     } else {
       console.log("error");
     }
   };
 
-  function validateColor(color) {
+  const validateColor = color => {
     if (!color.match(/^#([0-9a-f]){3,6}$/i)) {
       setFormState({
         ...formState,
@@ -35,9 +34,9 @@ function LabelForm(props) {
         colorIsValid: true
       });
     }
-  }
+  };
 
-  function validateName(name) {
+  const validateName = name => {
     if (!(0 < name.length)) {
       setFormState({
         ...formState,
@@ -50,7 +49,33 @@ function LabelForm(props) {
         nameIsValid: true
       });
     }
+  };
+
+  function setPopoutVissible() {
+    setFormState({
+      ...formState,
+      popoutVisible: true
+    });
   }
+
+  function setPopoutInvissible() {
+    setFormState({
+      ...formState,
+      popoutVisible: false
+    });
+  }
+
+  const handlePickerChange = (color, e) => {
+    setFormState({
+      ...formState,
+      colorIsValid: true
+    });
+    setLabel({
+      ...label,
+      color: color.hex
+    });
+    setPopoutInvissible();
+  };
 
   return (
     <form className="needs-validation" onSubmit={handleSubmit}>
@@ -58,40 +83,63 @@ function LabelForm(props) {
         <div className="col-sm-12 mt-5">
           <label className="sr-only">Color</label>
           <div className="input-group">
+            <div className="input-group-prepend">
+              <div className="input-group-text">
+                <span
+                  className="badge badge-secondary"
+                  style={{ backgroundColor: label.color }}
+                >
+                  Color
+                </span>
+              </div>
+            </div>
             <Manager>
               <Reference>
                 {({ ref }) => (
-                  <div className="input-group-prepend" ref={ref}>
-                    <div className="input-group-text">
-                      <span
-                        className="badge badge-secondary"
-                        style={{ backgroundColor: label.color }}
-                      >
-                        Color
-                      </span>
-                    </div>
-                  </div>
+                  <input
+                    ref={ref}
+                    type="text"
+                    name="color"
+                    className={`form-control ${
+                      formState.colorIsValid ? "is-valid" : "is-invalid"
+                    }`}
+                    placeholder="Color"
+                    value={label.color || ""}
+                    onFocus={setPopoutVissible}
+                    onChange={e => {
+                      const color = e.target.value;
+                      validateColor(color);
+                      setLabel({
+                        ...label,
+                        color: color
+                      });
+                    }}
+                  />
                 )}
               </Reference>
+              {formState.popoutVisible ? (
+                <Popper placement="top" positionFixed>
+                  {({ ref, style, placement, arrowProps }) => (
+                    <div ref={ref} style={style} data-placement={placement}>
+                      <TwitterPicker
+                        triangle="hide"
+                        color={label.color}
+                        onChange={handlePickerChange}
+                        // onChange={setPopoutInvissible}
+                      />
+                      <div
+                        ref={arrowProps.ref}
+                        style={{ height: 5, ...arrowProps.style }}
+                      />
+                    </div>
+                  )}
+                  >
+                </Popper>
+              ) : (
+                ""
+              )}
             </Manager>
 
-            <input
-              type="text"
-              name="color"
-              className={`form-control ${
-                formState.colorIsValid ? "is-valid" : "is-invalid"
-              }`}
-              placeholder="Color"
-              value={label.color || ""}
-              onChange={e => {
-                const color = e.target.value;
-                validateColor(color);
-                setLabel({
-                  ...label,
-                  color: color
-                });
-              }}
-            />
             <div className="invalid-feedback">{formState?.colorError}</div>
           </div>
         </div>
