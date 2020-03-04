@@ -1,80 +1,94 @@
-import React, { useState } from "react";
+import React, { useReducer } from "react";
 import PropTypes from "prop-types";
 import "../App.css";
 import { Manager, Reference, Popper } from "react-popper";
 import { TwitterPicker } from "react-color";
 
+const UPDATE_LABEL = "UPDATE_LABEL";
+const PICK_COLOR = "PICK_COLOR";
+const SET_SHOW_COLORPICKER = "SET_SHOW_COLORPICKER";
+
+const updateLabel = (field, value) => ({
+  type: UPDATE_LABEL,
+  payload: { field, value }
+});
+const pickColor = color => ({ type: PICK_COLOR, payload: color });
+const setShowColorPicker = show => ({
+  type: SET_SHOW_COLORPICKER,
+  payload: show
+});
+
+const initialState = {
+  label: {},
+  showColorPicker: false,
+  touched: {}
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "UPDATE_LABEL": {
+      return {
+        ...state,
+        label: {
+          ...state.label,
+          [action.payload.field]: action.payload.value
+        },
+        touched: {
+          ...state.touched,
+          [action.payload.field]: true
+        }
+      };
+    }
+    case "PICK_COLOR": {
+      return {
+        ...state,
+        showColorPicker: false,
+        label: {
+          ...state.label,
+          color: action.payload
+        }
+      };
+    }
+    case "SET_SHOW_COLORPICKER": {
+      console.log(action);
+      return {
+        ...state,
+        showColorPicker: action.payload
+      };
+    }
+    default:
+      return state;
+  }
+};
+
+const validateColor = color => color.match(/^#([0-9a-f]){3,6}$/i);
+const validateName = name => 0 < name.length;
+
 function LabelForm(props) {
-  const [label, setLabel] = useState(props.label);
-  const [formState, setFormState] = useState({
-    nameIsValid: true,
-    colorIsValid: true,
-    popoutVisible: false
+  const [state, dispatch] = useReducer(reducer, {
+    ...initialState,
+    label: props.label
   });
 
   const handleSubmit = e => {
     e.preventDefault();
-    if (formState.nameIsValid && formState.colorIsValid) {
-      props.onSubmit(label);
+    if (validateColor(state.label.color) && validateName(state.label.name)) {
+      props.onSubmit(state.label);
     } else {
       console.log("error");
     }
   };
 
-  const validateColor = color => {
-    if (!color.match(/^#([0-9a-f]){3,6}$/i)) {
-      setFormState({
-        ...formState,
-        colorIsValid: false,
-        colorError: "Color should be a valid hexcode."
-      });
-    } else {
-      setFormState({
-        ...formState,
-        colorIsValid: true
-      });
-    }
+  const handlePickerChange = color => {
+    dispatch(pickColor(color.hex));
   };
 
-  const validateName = name => {
-    if (!(0 < name.length)) {
-      setFormState({
-        ...formState,
-        nameIsValid: false,
-        nameError: "Name should not be empty!"
-      });
-    } else {
-      setFormState({
-        ...formState,
-        nameIsValid: true
-      });
-    }
-  };
-
-  function setPopoutVissible() {
-    setFormState({
-      ...formState,
-      popoutVisible: true
-    });
-  }
-
-  function setPopoutInvissible() {
-    setFormState({
-      ...formState,
-      popoutVisible: false
-    });
-  }
-
-  const handlePickerChange = (color, e) => {
-    setFormState({
-      ...formState,
-      colorIsValid: true
-    });
-    setLabel({
-      ...label,
-      color: color.hex
-    });
-    setPopoutInvissible();
+  const fieldValidClassName = (field, validator) => {
+    return state.touched[field]
+      ? validator(state.label[field])
+        ? "is-valid"
+        : "is-invalid"
+      : "";
   };
 
   return (
@@ -87,7 +101,7 @@ function LabelForm(props) {
               <div className="input-group-text">
                 <span
                   className="badge badge-secondary"
-                  style={{ backgroundColor: label.color }}
+                  style={{ backgroundColor: state.label.color }}
                 >
                   Color
                 </span>
@@ -100,36 +114,30 @@ function LabelForm(props) {
                     ref={ref}
                     type="text"
                     name="color"
-                    className={`form-control ${
-                      formState.colorIsValid ? "is-valid" : "is-invalid"
-                    }`}
+                    className={`form-control ${fieldValidClassName(
+                      "color",
+                      validateColor
+                    )}`}
                     placeholder="Color"
-                    value={label.color || ""}
-                    onFocus={setPopoutVissible}
+                    value={state.label.color || ""}
+                    onFocus={() => {
+                      dispatch(setShowColorPicker(true));
+                    }}
                     onChange={e => {
                       const color = e.target.value;
-                      validateColor(color);
-                      setLabel({
-                        ...label,
-                        color: color
-                      });
+                      dispatch(updateLabel("color", color));
                     }}
                   />
                 )}
               </Reference>
-              {formState.popoutVisible ? (
+              {state.showColorPicker ? (
                 <Popper placement="top" positionFixed>
-                  {({ ref, style, placement, arrowProps }) => (
+                  {({ ref, style, placement }) => (
                     <div ref={ref} style={style} data-placement={placement}>
                       <TwitterPicker
                         triangle="hide"
-                        color={label.color}
+                        color={state.label.color}
                         onChange={handlePickerChange}
-                        // onChange={setPopoutInvissible}
-                      />
-                      <div
-                        ref={arrowProps.ref}
-                        style={{ height: 5, ...arrowProps.style }}
                       />
                     </div>
                   )}
@@ -140,7 +148,11 @@ function LabelForm(props) {
               )}
             </Manager>
 
-            <div className="invalid-feedback">{formState?.colorError}</div>
+            <div className="invalid-feedback">
+              {state.touched.color &&
+                !validateColor(state.label.color) &&
+                "Should be a hex code"}
+            </div>
           </div>
         </div>
         <div className="col-sm-12 my-3">
@@ -149,28 +161,35 @@ function LabelForm(props) {
             <input
               type="text"
               name="name"
-              className={`form-control ${
-                formState.nameIsValid ? "is-valid" : "is-invalid"
-              }`}
+              className={`form-control ${fieldValidClassName(
+                "name",
+                validateName
+              )}`}
               placeholder="Name"
-              value={label.name || ""}
+              value={state.label.name || ""}
               onChange={e => {
                 const name = e.target.value;
-                validateName(name);
-                setLabel({
-                  ...label,
-                  name: name
-                });
+                dispatch(updateLabel("name", name));
               }}
             />
-            <div className="invalid-feedback">{formState.nameError}</div>
+            <div className="invalid-feedback">
+              {" "}
+              {state.touched.name &&
+                !validateName(state.label.name) &&
+                "Name should not be empty"}
+            </div>
           </div>
         </div>
         <div className="col-auto">
           <button
             type="submit"
             className="btn btn-primary mb-2"
-            disabled={!(formState.nameIsValid && formState.colorIsValid)}
+            disabled={
+              !(
+                validateColor(state.label.color) &&
+                validateName(state.label.name)
+              )
+            }
           >
             Submit
           </button>
